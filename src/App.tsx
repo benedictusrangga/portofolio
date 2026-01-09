@@ -300,9 +300,13 @@ function App() {
               <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-gradient">
                 Benedictus Rangga Aryo Saputro
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 mb-8">
-                Fullstack Developer | Cyber Security Specialist
-              </p>
+            <p className="text-xl md:text-2xl text-gray-300 mb-4">
+  Full-Stack Developer building secure, production-ready web applications
+</p>
+
+<p className="text-gray-400 mb-8">
+  I design, build, and deploy real-world web systems — from frontend to API to database.
+</p>
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-12">
                 <a href="mailto:benedictus.rangga9@gmail.com" className="flex items-center gap-2 px-6 py-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/20 transition-all hover:scale-105">
                   <Mail className="w-5 h-5" />
