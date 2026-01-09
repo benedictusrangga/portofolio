@@ -14,7 +14,6 @@ import {
   ExternalLink,
   Award,
   Languages,
-  Download,
   X,
   Zap,
   ChevronLeft,
@@ -414,7 +413,7 @@ function App() {
                   <ul className="space-y-2 text-gray-300">
                     <li className="flex gap-2">
                       <ChevronRight className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                      <span>Developed and maintained the company website (unitedheater.co.id) including Company Profile, Articles, About Us, Order Tracking, Contact, and Job Vacancy pages</span>
+                      <span>  Developed and maintained unitedheater.co.id as a production system used by real customers, including Company Profile, Articles, Order Tracking, Contact, and Job Vacancy modules</span>
                     </li>
                     <li className="flex gap-2">
                       <ChevronRight className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
@@ -507,18 +506,7 @@ function App() {
               </div>
             ))}
           </div>
-          <div className="mt-12 text-center">
-            <a
-              href="https://drive.google.com/file/d/1mgwBg9VtlDJmzMZVMr2VK3bzV_7KhSxm/view"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all hover:scale-105"
-            >
-              <Download className="w-5 h-5" />
-              View Full Portfolio
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
+         
         </div>
       </section>
 
@@ -823,7 +811,7 @@ function App() {
       <footer className="bg-slate-900/80 backdrop-blur-sm border-t border-cyan-500/20 py-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-gray-400">
-            © 2025 Benedictus Rangga Aryo Saputro. All rights reserved.
+            © 2026 Benedictus Rangga Aryo Saputro. All rights reserved.
           </p>
           <p className="text-gray-500 text-sm mt-2">
             Fullstack Developer | Cyber Security Specialist
