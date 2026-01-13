@@ -14,13 +14,9 @@ export default async function handler(req, res) {
     const { deviceId, timestamp } = req.body;
     
     try {
-      // Increment total visits
       await redis.incr('total_visits');
-      
-      // Add to unique visitors set
       await redis.sadd('unique_visitors', deviceId);
       
-      // Store visit data
       const visitData = {
         deviceId,
         timestamp,
@@ -28,11 +24,9 @@ export default async function handler(req, res) {
         userAgent: req.headers['user-agent'] || 'unknown'
       };
       
-      // Store latest visits (keep last 50)
       await redis.lpush('recent_visits', JSON.stringify(visitData));
       await redis.ltrim('recent_visits', 0, 49);
       
-      // Update first/last visit timestamps
       const firstVisit = await redis.get('first_visit');
       if (!firstVisit) {
         await redis.set('first_visit', timestamp);
