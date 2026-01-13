@@ -9,9 +9,5 @@ CREATE TABLE analytics (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable Row Level Security (optional)
-ALTER TABLE analytics ENABLE ROW LEVEL SECURITY;
-
--- Create policy untuk allow insert dan select
-CREATE POLICY "Allow public insert" ON analytics FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select" ON analytics FOR SELECT USING (true);
+-- Disable RLS untuk public access
+ALTER TABLE analytics DISABLE ROW LEVEL SECURITY;
