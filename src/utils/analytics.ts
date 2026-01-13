@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabase';
+
 interface VisitData {
   totalVisits: number;
   uniqueVisitors: number;
@@ -24,8 +26,20 @@ const getDeviceId = (): string => {
   return deviceId;
 };
 
-// Simple analytics using localStorage with cross-tab sync
-const GLOBAL_STORAGE_KEY = 'portfolio_global_analytics';
+// Send analytics to Supabase
+const sendToSupabase = async (deviceId: string): Promise<void> => {
+  try {
+    await supabase
+      .from('analytics')
+      .insert({
+        device_id: deviceId,
+        timestamp: new Date().toISOString(),
+        user_agent: navigator.userAgent
+      });
+  } catch (error) {
+    console.log('Analytics tracking failed:', error);
+  }
+};
 
 // Track visit
 export const trackVisit = (): void => {
@@ -60,31 +74,8 @@ export const trackVisit = (): void => {
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   
-  // Update global stats
-  updateGlobalStats(deviceId, now);
-};
-
-// Update global stats with better persistence
-const updateGlobalStats = (deviceId: string, timestamp: string): void => {
-  let globalStats = JSON.parse(localStorage.getItem(GLOBAL_STORAGE_KEY) || '{}');
-  
-  if (!globalStats.totalVisits) {
-    globalStats.totalVisits = 1;
-    globalStats.uniqueVisitors = [deviceId];
-    globalStats.firstVisit = timestamp;
-  } else {
-    globalStats.totalVisits += 1;
-    if (!globalStats.uniqueVisitors.includes(deviceId)) {
-      globalStats.uniqueVisitors.push(deviceId);
-    }
-  }
-  
-  globalStats.lastVisit = timestamp;
-  
-  localStorage.setItem(GLOBAL_STORAGE_KEY, JSON.stringify(globalStats));
-  
-  // Broadcast to other tabs
-  window.dispatchEvent(new CustomEvent('analytics-update', { detail: globalStats }));
+  // Send to Supabase
+  sendToSupabase(deviceId);
 };
 
 // Get local analytics data
@@ -102,15 +93,35 @@ export const getAnalytics = (): VisitData => {
   return JSON.parse(stored);
 };
 
-// Get global analytics
+// Get Supabase analytics
 export const getServerAnalytics = async () => {
-  const globalStats = JSON.parse(localStorage.getItem(GLOBAL_STORAGE_KEY) || '{}');
-  
-  return {
-    totalVisits: globalStats.totalVisits || 0,
-    uniqueVisitors: globalStats.uniqueVisitors ? globalStats.uniqueVisitors.length : 0,
-    firstVisit: globalStats.firstVisit || null,
-    lastVisit: globalStats.lastVisit || null,
-    recentVisits: []
-  };
+  try {
+    const { data, error } = await supabase
+      .from('analytics')
+      .select('*');
+    
+    if (error) throw error;
+    
+    const totalVisits = data?.length || 0;
+    const uniqueVisitors = new Set(data?.map(item => item.device_id)).size;
+    const firstVisit = data?.[0]?.timestamp;
+    const lastVisit = data?.[data.length - 1]?.timestamp;
+    
+    return {
+      totalVisits,
+      uniqueVisitors,
+      firstVisit,
+      lastVisit,
+      recentVisits: data?.slice(-5) || []
+    };
+  } catch (error) {
+    console.log('Failed to fetch analytics:', error);
+    return {
+      totalVisits: 0,
+      uniqueVisitors: 0,
+      firstVisit: null,
+      lastVisit: null,
+      recentVisits: []
+    };
+  }
 };
