@@ -8,7 +8,7 @@ interface VisitData {
 
 const STORAGE_KEY = 'portfolio_analytics';
 const DEVICE_KEY = 'portfolio_device_id';
-const API_URL = '/api/analytics';
+const GLOBAL_KEY = 'portfolio_global_stats';
 
 // Generate unique device ID
 const generateDeviceId = (): string => {
@@ -25,24 +25,12 @@ const getDeviceId = (): string => {
   return deviceId;
 };
 
-// Send analytics to server
-const sendToServer = async (deviceId: string): Promise<void> => {
-  try {
-    await fetch('/api/analytics', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceId, timestamp: new Date().toISOString() })
-    });
-  } catch (error) {
-    console.log('Analytics tracking failed:', error);
-  }
-};
-
 // Track visit
 export const trackVisit = (): void => {
   const deviceId = getDeviceId();
   const now = new Date().toISOString();
   
+  // Local analytics
   let data: VisitData = {
     totalVisits: 0,
     uniqueVisitors: 0,
@@ -56,7 +44,6 @@ export const trackVisit = (): void => {
     data = JSON.parse(stored);
   }
 
-  // Check if this device has visited before
   const visitedDevices = JSON.parse(localStorage.getItem('visited_devices') || '[]');
   const isNewDevice = !visitedDevices.includes(deviceId);
 
@@ -71,8 +58,26 @@ export const trackVisit = (): void => {
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   
-  // Send to server
-  sendToServer(deviceId);
+  // Global analytics (shared across all users)
+  updateGlobalStats(deviceId, now);
+};
+
+// Update global stats (simulated)
+const updateGlobalStats = (deviceId: string, timestamp: string): void => {
+  let globalStats = JSON.parse(localStorage.getItem(GLOBAL_KEY) || '{}');
+  
+  if (!globalStats.totalVisits) globalStats.totalVisits = 0;
+  if (!globalStats.uniqueVisitors) globalStats.uniqueVisitors = new Set();
+  if (!globalStats.firstVisit) globalStats.firstVisit = timestamp;
+  
+  globalStats.totalVisits += 1;
+  globalStats.uniqueVisitors = Array.from(new Set([...globalStats.uniqueVisitors, deviceId]));
+  globalStats.lastVisit = timestamp;
+  
+  localStorage.setItem(GLOBAL_KEY, JSON.stringify({
+    ...globalStats,
+    uniqueVisitors: globalStats.uniqueVisitors
+  }));
 };
 
 // Get local analytics data
@@ -90,13 +95,15 @@ export const getAnalytics = (): VisitData => {
   return JSON.parse(stored);
 };
 
-// Get server analytics data
+// Get simulated server analytics
 export const getServerAnalytics = async () => {
-  try {
-    const response = await fetch('/api/analytics');
-    return await response.json();
-  } catch (error) {
-    console.log('Failed to fetch server analytics:', error);
-    return null;
-  }
+  const globalStats = JSON.parse(localStorage.getItem(GLOBAL_KEY) || '{}');
+  
+  return {
+    totalVisits: globalStats.totalVisits || 0,
+    uniqueVisitors: globalStats.uniqueVisitors ? globalStats.uniqueVisitors.length : 0,
+    firstVisit: globalStats.firstVisit || null,
+    lastVisit: globalStats.lastVisit || null,
+    recentVisits: []
+  };
 };
