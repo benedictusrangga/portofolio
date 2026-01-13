@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/analytics.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
