@@ -175,7 +175,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
             <strong>Device ID:</strong> {localAnalytics.deviceId}
           </p>
           <p className="text-gray-500 text-xs mt-2">
-            Data persistent disimpan di Vercel KV. Data akan bertahan selamanya dan dapat diakses dari mana saja.
+            Data disimpan di localStorage browser. Data global adalah simulasi untuk demo purposes.
           </p>
         </div>
       </div>
