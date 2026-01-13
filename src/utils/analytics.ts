@@ -8,8 +8,6 @@ interface VisitData {
 
 const STORAGE_KEY = 'portfolio_analytics';
 const DEVICE_KEY = 'portfolio_device_id';
-const JSONBIN_API = 'https://api.jsonbin.io/v3/b/679c8e2ead19ca34f8d4f8a2';
-const JSONBIN_KEY = '$2a$10$8vQZ9K5L2mN3pR7sT1uV6eX4wY8qA9cB5dF2gH7jK3lM6nO0pS9tU';
 
 // Generate unique device ID
 const generateDeviceId = (): string => {
@@ -26,45 +24,8 @@ const getDeviceId = (): string => {
   return deviceId;
 };
 
-// Send analytics to JSONBin
-const sendToServer = async (deviceId: string): Promise<void> => {
-  try {
-    // Get current data
-    const response = await fetch(JSONBIN_API + '/latest', {
-      headers: {
-        'X-Master-Key': JSONBIN_KEY
-      }
-    });
-    
-    let data = { totalVisits: 0, uniqueVisitors: [], firstVisit: null, lastVisit: null };
-    if (response.ok) {
-      const result = await response.json();
-      data = result.record || data;
-    }
-    
-    // Update data
-    data.totalVisits += 1;
-    if (!data.uniqueVisitors.includes(deviceId)) {
-      data.uniqueVisitors.push(deviceId);
-    }
-    if (!data.firstVisit) {
-      data.firstVisit = new Date().toISOString();
-    }
-    data.lastVisit = new Date().toISOString();
-    
-    // Save updated data
-    await fetch(JSONBIN_API, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(data)
-    });
-  } catch (error) {
-    console.log('Analytics tracking failed:', error);
-  }
-};
+// Simple analytics using localStorage with cross-tab sync
+const GLOBAL_STORAGE_KEY = 'portfolio_global_analytics';
 
 // Track visit
 export const trackVisit = (): void => {
@@ -99,8 +60,31 @@ export const trackVisit = (): void => {
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   
-  // Send to real server
-  sendToServer(deviceId);
+  // Update global stats
+  updateGlobalStats(deviceId, now);
+};
+
+// Update global stats with better persistence
+const updateGlobalStats = (deviceId: string, timestamp: string): void => {
+  let globalStats = JSON.parse(localStorage.getItem(GLOBAL_STORAGE_KEY) || '{}');
+  
+  if (!globalStats.totalVisits) {
+    globalStats.totalVisits = 1;
+    globalStats.uniqueVisitors = [deviceId];
+    globalStats.firstVisit = timestamp;
+  } else {
+    globalStats.totalVisits += 1;
+    if (!globalStats.uniqueVisitors.includes(deviceId)) {
+      globalStats.uniqueVisitors.push(deviceId);
+    }
+  }
+  
+  globalStats.lastVisit = timestamp;
+  
+  localStorage.setItem(GLOBAL_STORAGE_KEY, JSON.stringify(globalStats));
+  
+  // Broadcast to other tabs
+  window.dispatchEvent(new CustomEvent('analytics-update', { detail: globalStats }));
 };
 
 // Get local analytics data
@@ -118,36 +102,15 @@ export const getAnalytics = (): VisitData => {
   return JSON.parse(stored);
 };
 
-// Get real server analytics
+// Get global analytics
 export const getServerAnalytics = async () => {
-  try {
-    const response = await fetch(JSONBIN_API + '/latest', {
-      headers: {
-        'X-Master-Key': JSONBIN_KEY
-      }
-    });
-    
-    if (response.ok) {
-      const result = await response.json();
-      const data = result.record;
-      
-      return {
-        totalVisits: data.totalVisits || 0,
-        uniqueVisitors: data.uniqueVisitors ? data.uniqueVisitors.length : 0,
-        firstVisit: data.firstVisit,
-        lastVisit: data.lastVisit,
-        recentVisits: []
-      };
-    }
-  } catch (error) {
-    console.log('Failed to fetch server analytics:', error);
-  }
+  const globalStats = JSON.parse(localStorage.getItem(GLOBAL_STORAGE_KEY) || '{}');
   
   return {
-    totalVisits: 0,
-    uniqueVisitors: 0,
-    firstVisit: null,
-    lastVisit: null,
+    totalVisits: globalStats.totalVisits || 0,
+    uniqueVisitors: globalStats.uniqueVisitors ? globalStats.uniqueVisitors.length : 0,
+    firstVisit: globalStats.firstVisit || null,
+    lastVisit: globalStats.lastVisit || null,
     recentVisits: []
   };
 };

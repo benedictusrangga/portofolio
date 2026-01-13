@@ -75,7 +75,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
           <div className="bg-slate-800/50 border border-green-500/20 rounded-xl p-6">
             <h3 className="text-lg font-bold text-green-400 mb-4 flex items-center gap-2">
               <Globe className="w-5 h-5" />
-              Data Global (Real Analytics)
+              Data Global (LocalStorage)
             </h3>
             {loading ? (
               <div className="text-center text-gray-400">Loading...</div>
@@ -175,7 +175,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
             <strong>Device ID:</strong> {localAnalytics.deviceId}
           </p>
           <p className="text-gray-500 text-xs mt-2">
-            Data lokal tersimpan di browser. Data global adalah real analytics dari semua pengunjung menggunakan JSONBin.io.
+            Data tersimpan di localStorage browser. Untuk analytics real lintas device, perlu setup database eksternal.
           </p>
         </div>
       </div>
