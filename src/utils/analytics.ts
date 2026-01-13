@@ -98,12 +98,13 @@ export const getServerAnalytics = async () => {
   try {
     const { data, error } = await supabase
       .from('analytics')
-      .select('*');
+      .select('*')
+      .order('created_at', { ascending: true });
     
     if (error) throw error;
     
     const totalVisits = data?.length || 0;
-    const uniqueVisitors = new Set(data?.map(item => item.device_id)).size;
+    const uniqueVisitors = new Set(data?.map(item => item.device_id).filter(Boolean)).size;
     const firstVisit = data?.[0]?.timestamp;
     const lastVisit = data?.[data.length - 1]?.timestamp;
     
@@ -112,7 +113,7 @@ export const getServerAnalytics = async () => {
       uniqueVisitors,
       firstVisit,
       lastVisit,
-      recentVisits: data?.slice(-5) || []
+      recentVisits: data?.slice(-5).filter(item => item && item.device_id) || []
     };
   } catch (error) {
     console.log('Failed to fetch analytics:', error);

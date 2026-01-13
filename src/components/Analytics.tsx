@@ -157,12 +157,15 @@ const Analytics: React.FC<AnalyticsProps> = ({ isOpen, onClose }) => {
                 <div className="mt-4">
                   <h5 className="text-sm font-semibold text-gray-300 mb-2">Recent Visits:</h5>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {serverAnalytics.recentVisits.map((visit: any, index: number) => (
-                      <div key={index} className="text-xs text-gray-500 flex justify-between">
-                        <span>{visit.deviceId.substring(0, 12)}...</span>
-                        <span>{formatDate(visit.timestamp)}</span>
-                      </div>
-                    ))}
+                    {serverAnalytics.recentVisits.map((visit: any, index: number) => {
+                      if (!visit || !visit.device_id) return null;
+                      return (
+                        <div key={index} className="text-xs text-gray-500 flex justify-between">
+                          <span>{visit.device_id.substring(0, 12)}...</span>
+                          <span>{formatDate(visit.timestamp)}</span>
+                        </div>
+                      );
+                    }).filter(Boolean)}
                   </div>
                 </div>
               )}
