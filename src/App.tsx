@@ -392,7 +392,7 @@ function App() {
                 </a>
                 <a href="tel:085138971803" className="flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/20 transition-all hover:scale-105 text-sm sm:text-base">
                   <Phone className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  <span>0851-3898-1803</span>
+                  <span>0851-3897-1803</span>
                 </a>
                 <a href="https://github.com/benedictusrangga" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/20 transition-all hover:scale-105 text-sm sm:text-base">
                   <Github className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
